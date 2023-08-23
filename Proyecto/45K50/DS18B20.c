@@ -11,7 +11,7 @@ Driver Version    :  1.0
 ********************************************************************************/
 
 /*******************************************************************************
-Para usar el cï¿½digo con bootloader, configurar como lo indica MICROSIDE:
+Para usar el código con bootloader, configurar como lo indica MICROSIDE:
 1) Tools> Options> Output> Output Settings> Marcar "Long HEX format"
 2) Project> Edit Project> Insertar 48.000000 en "MCU Clock Frequency [MHz]" box
 ********************************************************************************/
@@ -19,7 +19,7 @@ Para usar el cï¿½digo con bootloader, configurar como lo indica MICROSIDE:
 #pragma orgall 0x1FFF
 
 
-//Referencias externas de conexiï¿½n del modulo LCD
+//Referencias externas de conexión del modulo LCD
 sbit LCD_RS at LATB0_bit;
 sbit LCD_EN at LATB2_bit;
 sbit LCD_D4 at LATB3_bit;
@@ -33,9 +33,9 @@ sbit LCD_D4_Direction at TRISB3_bit;
 sbit LCD_D5_Direction at TRISB4_bit;
 sbit LCD_D6_Direction at TRISB5_bit;
 sbit LCD_D7_Direction at TRISB6_bit;
-//  Fin de las referencias externas de conexiï¿½n del modulo LCD
+//  Fin de las referencias externas de conexión del modulo LCD
 
-//  18S20: 9  (Configuraciï¿½n por defecto; 9,10,11,o 12)
+//  18S20: 9  (Configuración por defecto; 9,10,11,o 12)
 //  18B20: 12
 const unsigned short TEMP_RESOLUTION = 9;
 
@@ -57,13 +57,13 @@ void main() org 0x2000
   Lcd_Cmd(_LCD_CURSOR_OFF);                  //Posiciona el cursor
   Lcd_Out(1, 1, " Temperature:   ");
   
-  //Imprimir carï¿½cter de grado, 'C' para grados centï¿½grados
+  //Imprimir carácter de grado, 'C' para grados centígrados
   Lcd_Chr(2,13,223);
   Lcd_Chr(2,14,'C');
   
  while(1) {
 
-    Ow_Reset(&PORTA, 0);                     // Seï¿½al de reinicio Onewire
+    Ow_Reset(&PORTA, 0);                     // Señal de reinicio Onewire
     Ow_Write(&PORTA, 0, 0xCC);               // Emitir comando SKIP_ROM
     Ow_Write(&PORTA, 0, 0x44);               // Emitir comando CONVERT_T
 
@@ -80,7 +80,7 @@ void main() org 0x2000
       raw_temp = ~raw_temp + 1;              // Modifica el valor a su forma positiva
     }
     else {
-      if((raw_temp >> 4) >= 100)             // Si la temperatura es >= 100 ï¿½C
+      if((raw_temp >> 4) >= 100)             // Si la temperatura es >= 100 °C
         temp[0] = '1';
       else
         temp[0] = ' ';
@@ -95,7 +95,7 @@ void main() org 0x2000
     temp[6] = (((raw_temp & 0x0F) * 625) / 10 )  % 10 + 48;
     temp[7] = ( (raw_temp & 0x0F) * 625) % 10 + 48;
 
-    temp[8] = 223;                           //Imprime el simbolo de ï¿½
+    temp[8] = 223;                           //Imprime el simbolo de °
     Lcd_Out(2, 4, temp);                     //Muestra la temperatura en el LCD
     Delay_ms(1000);                          //Espera 1 segundo
   }
