@@ -18,8 +18,7 @@ Para usar el código con bootloader, configurar como lo indica MICROSIDE:
 
 #pragma orgall 0x1FFF
 
-
-//Referencias externas de conexión del modulo LCD
+// Referencias externas de conexión del modulo LCD
 sbit LCD_RS at LATB0_bit;
 sbit LCD_EN at LATB2_bit;
 sbit LCD_D4 at LATB3_bit;
@@ -44,59 +43,59 @@ int raw_temp;
 
 void main() org 0x2000
 {
-  ANSELB  = 0;                   //Configura el puerto B como pines digitales
-  TRISB1_bit = 0;               //Configura el puerto B1 como salida
-  LATB.f1 = 0;                  //Escribimos un 0 para definir el LCD como escritura
+   ANSELB = 0;                 // Configura el puerto B como pines digitales
+   TRISB1_bit = 0;             // Configura el puerto B1 como salida
+   LATB.f1 = 0;                // Escribimos un 0 para definir el LCD como escritura
 
-  ANSELA = 0;
-  C1ON_bit = 0;                  //Deshabilita los comparadores
-  C2ON_bit = 0;
-  
-  Lcd_Init();                                //Inicializa el LCD
-  Lcd_Cmd(_LCD_CLEAR);                       //Limpia el LCD
-  Lcd_Cmd(_LCD_CURSOR_OFF);                  //Posiciona el cursor
-  Lcd_Out(1, 1, " Temperature:   ");
-  
-  //Imprimir carácter de grado, 'C' para grados centígrados
-  Lcd_Chr(2,13,223);
-  Lcd_Chr(2,14,'C');
-  
- while(1) {
+   ANSELA = 0;
+   C1ON_bit = 0;               // Deshabilita los comparadores
+   C2ON_bit = 0;
 
-    Ow_Reset(&PORTA, 0);                     // Señal de reinicio Onewire
-    Ow_Write(&PORTA, 0, 0xCC);               // Emitir comando SKIP_ROM
-    Ow_Write(&PORTA, 0, 0x44);               // Emitir comando CONVERT_T
+   Lcd_Init();                 // Inicializa el LCD
+   Lcd_Cmd( _LCD_CLEAR );      // Limpia el LCD
+   Lcd_Cmd( _LCD_CURSOR_OFF ); // Posiciona el cursor
+   Lcd_Out( 1, 1, " Temperature:   " );
 
-    while(Ow_Read(&PORTA, 0) == 0) ;
-    Ow_Reset(&PORTA, 0);                     // Onewire reset signal
-    Ow_Write(&PORTA, 0, 0xCC);               // Emitir comando SKIP_ROM
-    Ow_Write(&PORTA, 0, 0xBE);               // Emitir comando READ_SCRATCHPAD
+   // Imprimir carácter de grado, 'C' para grados centígrados
+   Lcd_Chr( 2, 13, 223 );
+   Lcd_Chr( 2, 14, 'C' );
 
-    raw_temp  = Ow_Read(&PORTA, 0);          // Read temperature LSB byte
-    raw_temp |= (Ow_Read(&PORTA, 0) << 8);   // Read temperature MSB byte
+   while ( 1 ) {
 
-    if(raw_temp & 0x8000) {                  // Si la temperatura es negativa
-      temp[0] = '-';                         // coloca el signo "-"
-      raw_temp = ~raw_temp + 1;              // Modifica el valor a su forma positiva
-    }
-    else {
-      if((raw_temp >> 4) >= 100)             // Si la temperatura es >= 100 °C
-        temp[0] = '1';
-      else
-        temp[0] = ' ';
-    }
+      Ow_Reset( &PORTA, 0 );                     // Señal de reinicio Onewire
+      Ow_Write( &PORTA, 0, 0xCC );               // Emitir comando SKIP_ROM
+      Ow_Write( &PORTA, 0, 0x44 );               // Emitir comando CONVERT_T
 
-    temp[1] = ( (raw_temp >> 4) / 10 ) % 10 + 48;
-    temp[2] =   (raw_temp >> 4)        % 10  + 48;
+      while ( Ow_Read( &PORTA, 0 ) == 0 );
+      
+      Ow_Reset( &PORTA, 0 );                     // Onewire reset signal
+      Ow_Write( &PORTA, 0, 0xCC );               // Emitir comando SKIP_ROM
+      Ow_Write( &PORTA, 0, 0xBE );               // Emitir comando READ_SCRATCHPAD
 
-    //Da el formato con punto decimal de la temperatura
-    temp[4] = ( (raw_temp & 0x0F) * 625) / 1000 + 48;
-    temp[5] = (((raw_temp & 0x0F) * 625) / 100 ) % 10 + 48;
-    temp[6] = (((raw_temp & 0x0F) * 625) / 10 )  % 10 + 48;
-    temp[7] = ( (raw_temp & 0x0F) * 625) % 10 + 48;
+      raw_temp = Ow_Read( &PORTA, 0 );           // Read temperature LSB byte
+      raw_temp |= ( Ow_Read( &PORTA, 0 ) << 8 ); // Read temperature MSB byte
 
-    temp[8] = 223;                           //Imprime el simbolo de °
-    Lcd_Out(2, 4, temp);                     //Muestra la temperatura en el LCD
-    Delay_ms(1000);                          //Espera 1 segundo
-  }
+      if ( raw_temp & 0x8000 ) {                 // Si la temperatura es negativa
+         temp[0] = '-';                          // coloca el signo "-"
+         raw_temp = ~raw_temp + 1;               // Modifica el valor a su forma positiva
+      } else {
+         if ( ( raw_temp >> 4 ) >= 100 )         // Si la temperatura es >= 100 °C
+            temp[0] = '1';
+         else
+            temp[0] = ' ';
+      }
+
+      temp[1] = ( ( raw_temp >> 4 ) / 10 ) % 10 + 48;
+      temp[2] = ( raw_temp >> 4 ) % 10 + 48;
+
+      // Da el formato con punto decimal de la temperatura
+      temp[4] = ( ( raw_temp & 0x0F ) * 625 ) / 1000 + 48;
+      temp[5] = ( ( ( raw_temp & 0x0F ) * 625 ) / 100 ) % 10 + 48;
+      temp[6] = ( ( ( raw_temp & 0x0F ) * 625 ) / 10 ) % 10 + 48;
+      temp[7] = ( ( raw_temp & 0x0F ) * 625 ) % 10 + 48;
+
+      temp[8] = 223;         // Imprime el simbolo de °
+      Lcd_Out( 2, 4, temp ); // Muestra la temperatura en el LCD
+      Delay_ms( 1000 );      // Espera 1 segundo
+   }
 }
